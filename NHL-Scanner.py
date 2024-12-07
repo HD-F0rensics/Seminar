@@ -38,6 +38,92 @@ def save_result_to_db(conn, target, signature, status, message, scan_id):
     """, (target, signature, status, message, scan_id))
     conn.commit()
 
+# Function to export report
+def export_report(conn, scan_id=None, target=None):
+    cursor = conn.cursor()
+
+    # Query results based on scan_id or target
+    if scan_id:
+        cursor.execute("SELECT * FROM scan_results_v2 WHERE scan_id = ?", (scan_id,))
+        output_file = "NHL_Scanner_Report_" + scan_id + ".html"
+    elif target:
+        cursor.execute("SELECT * FROM scan_results_v2 WHERE target = ?", (target,))
+        domain = target.split("//")[-1].split("/")[0]
+        output_file = "NHL_Scanner_Report_" + domain + ".html"
+    else:
+        print(f"{Fore.RED}[!] Error: You must specify either a scan-id or a target for the report.")
+        return
+
+    results = cursor.fetchall()
+    if not results:
+        print(f"{Fore.YELLOW}[!] No results found for the given criteria.")
+        return
+
+    # Generate HTML content
+    html_content = f"""
+    <html>
+    <head>
+        <title>NHL Scanner Report</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; }}
+            table {{ border-collapse: collapse; width: 100%; margin-top: 20px; }}
+            th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+            th {{ background-color: #f2f2f2; }}
+            tr:hover {{ background-color: #f5f5f5; }}
+            .match {{ color: green; }}
+            .not-match {{ color: orange; }}
+            .error {{ color: red; }}
+        </style>
+    </head>
+    <body>
+        <h1>NHL Scanner Report</h1>
+        <p>Report generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+    """
+
+    if scan_id:
+        html_content += f"<p>Scan ID: {scan_id}</p>"
+    elif target:
+        html_content += f"<p>Target: {target}</p>"
+
+    html_content += """
+        <table>
+            <tr>
+                <th>Target</th>
+                <th>Signature</th>
+                <th>Status</th>
+                <th>Message</th>
+                <th>Timestamp</th>
+                <th>Scan ID</th>
+            </tr>
+    """
+
+    for row in results:
+        target, signature, status, message, timestamp, scan_id = row[1:]
+        status_class = "match" if status == "MATCH" else "not-match" if status == "NOT MATCH" else "error"
+        html_content += f"""
+            <tr>
+                <td>{target}</td>
+                <td>{signature}</td>
+                <td class="{status_class}">{status}</td>
+                <td>{message}</td>
+                <td>{timestamp}</td>
+                <td>{scan_id}</td>
+            </tr>
+        """
+
+    html_content += """
+        </table>
+    </body>
+    </html>
+    """
+
+    # Save HTML file
+    
+    with open(output_file, "w") as file:
+        file.write(html_content)
+
+    print(f"{Fore.GREEN}[+] Report successfully generated: {output_file}")
+
 
 def run_sig(signature_name, target):
     file_path = os.path.join("signatures", signature_name)
@@ -107,6 +193,8 @@ def run_sig(signature_name, target):
         }
 
 
+
+
 def main():
     # Created with text2art("NHL   Scanner")
     logo = fr"""{Fore.BLUE}
@@ -114,7 +202,7 @@ def main():
 | \ | || | | || |       / ___|   ___   __ _  _ __   _ __    ___  _ __
 |  \| || |_| || |       \___ \  / __| / _` || '_ \ | '_ \  / _ \| '__|
 | |\  ||  _  || |___     ___) || (__ | (_| || | | || | | ||  __/| |
-|_| \_||_| |_||_____|   |____/  \___| \__,_||_| |_||_| |_| \___||_| v1
+|_| \_||_| |_||_____|   |____/  \___| \__,_||_| |_||_| |_| \___||_| v1.0
                                                                         BY NOFAR HILA LIRON @
 @HD-F0rensics - github.com/HD-F0rensics/Seminar
 """
@@ -125,7 +213,23 @@ def main():
     parser.add_argument("-S", "--all_signatures", help="Use all signatures in the 'signatures' folder", action="store_true")
     parser.add_argument("-s", "--signature", help="Use a specific signature file", type=str)
     parser.add_argument("-L", "--lite", help="Lite mode: print only matches", action="store_true")
+    parser.add_argument("--export-report", help="Export a report by scan-id or target", type=str)
+
     args = parser.parse_args()
+
+    conn = initialize_db()
+
+    # Export report if requested
+    if args.export_report:
+        if args.export_report.startswith("scan-id:"):
+            scan_id = args.export_report.split("scan-id:")[1]
+            export_report(conn, scan_id=scan_id)
+        elif args.export_report.startswith("target:"):
+            target = args.export_report.split("target:")[1]
+            export_report(conn, target=target)
+        else:
+            print(f"{Fore.RED}[!] Invalid --export-report format. Use 'scan-id:<id>' or 'target:<target>'")
+        return
 
     if not args.target and not args.targets:
         print(f"{Fore.RED}[!] Error: You must specify either a single target (-t) or a targets file (-T).")
@@ -166,7 +270,7 @@ def main():
         parser.print_help()
         return
 
-    conn = initialize_db()
+    
 
     # Generate a unique scan ID
     scan_id = str(uuid.uuid4())
