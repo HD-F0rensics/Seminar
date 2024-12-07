@@ -5,22 +5,24 @@ import os
 import sqlite3
 from datetime import datetime
 from colorama import Fore, Style, init
+import uuid  # For generating scan-id
 
 # Initialize colorama
 init(autoreset=True)
 
 # Initialize or connect to SQLite database
-def initialize_db(db_name="scan_results.db"):
+def initialize_db(db_name="scan_results_v2.db"):
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS scan_results (
+        CREATE TABLE IF NOT EXISTS scan_results_v2 (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             target TEXT NOT NULL,
             signature TEXT NOT NULL,
             status TEXT NOT NULL,
             message TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            scan_id TEXT NOT NULL
         )
     """)
     conn.commit()
@@ -28,12 +30,12 @@ def initialize_db(db_name="scan_results.db"):
 
 
 # Function to save results to the database
-def save_result_to_db(conn, target, signature, status, message):
+def save_result_to_db(conn, target, signature, status, message, scan_id):
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO scan_results (target, signature, status, message)
-        VALUES (?, ?, ?, ?)
-    """, (target, signature, status, message))
+        INSERT INTO scan_results_v2 (target, signature, status, message, scan_id)
+        VALUES (?, ?, ?, ?, ?)
+    """, (target, signature, status, message, scan_id))
     conn.commit()
 
 
@@ -96,7 +98,7 @@ def run_sig(signature_name, target):
         else:
             return {
                 "status": "NOT MATCH",
-                "message": f"{Fore.YELLOW}[-] NOT MATCH - [{match_parameter}] - {target} not vulnerable to {sig_id}"
+                "message": f"[-] NOT MATCH - [{match_parameter}] - {target} not vulnerable to {sig_id}"
             }
     except requests.RequestException as e:
         return {
@@ -112,8 +114,9 @@ def main():
 | \ | || | | || |       / ___|   ___   __ _  _ __   _ __    ___  _ __
 |  \| || |_| || |       \___ \  / __| / _` || '_ \ | '_ \  / _ \| '__|
 | |\  ||  _  || |___     ___) || (__ | (_| || | | || | | ||  __/| |
-|_| \_||_| |_||_____|   |____/  \___| \__,_||_| |_||_| |_| \___||_|
-                                                                    BY NOFAR HILA LIRON ©
+|_| \_||_| |_||_____|   |____/  \___| \__,_||_| |_||_| |_| \___||_| v1
+                                                                        BY NOFAR HILA LIRON @
+@HD-F0rensics - github.com/HD-F0rensics/Seminar
 """
     print(logo)
     parser = argparse.ArgumentParser(description="Web vulnerability scanner using predefined signatures.")
@@ -165,11 +168,15 @@ def main():
 
     conn = initialize_db()
 
+    # Generate a unique scan ID
+    scan_id = str(uuid.uuid4())
+    
+
     for target in targets:
         for signature in signatures:
             print(f"Scanning {target} with signature {signature}...")
             result = run_sig(signature, target)
-            save_result_to_db(conn, target, signature, result["status"], result["message"])
+            save_result_to_db(conn, target, signature, result["status"], result["message"], scan_id)
             if args.lite:
                 if result["status"] == "MATCH":
                     print(result["message"])
@@ -178,6 +185,7 @@ def main():
 
     conn.close()
 
+    print(f"\nScan ID: {scan_id}")
 
 if __name__ == "__main__":
     main()
