@@ -1,0 +1,25 @@
+{
+  "id": "CVE-2019-18935",
+  "info": {
+    "name": "Detect Telerik Web UI Fileupload Handler",
+    "author": "Hila",
+    "severity": "info",
+    "description": "This template detects the Telerik Web UI fileupload handler. CVE-2019-18935",
+    "metadata": {
+      "max-request": 1
+    },
+    "tags": ["tech", "telerik", "fileupload", "intrusive"]
+  },
+  "http": [
+    {
+      "method": "GET",
+      "path": ["{{BaseURL}}/Telerik.Web.UI.WebResource.axd?type=rau"],
+      "matchers": [
+        {
+          "type": "word",
+          "words": "RadAsyncUpload handler is registered succesfully"
+        }
+      ]
+    }
+  ]
+}
