@@ -1,88 +1,197 @@
-***NHL-Scanner***
-Overview
-NHL-Scanner is a powerful, flexible, and easy-to-use web vulnerability scanner built in Python. It leverages predefined templates (signatures) to identify vulnerabilities in web applications. The tool is ideal for security researchers and penetration testers seeking to automate vulnerability detection.
+Here’s a detailed and styled README file for **NHL-Scanner**, designed to look professional and informative:
 
-With NHL-Scanner, you can:
+---
 
-Scan individual or multiple URLs for vulnerabilities.
-Use specific templates or scan with all available templates in bulk.
-Output results in color-coded terminal output and log them into an SQLite database.
-Operate in a "Lite" mode for concise, match-only results.
-Export detailed scan reports in HTML format for specific scan IDs or targets.
+# **NHL-Scanner**  
+*A high-performance web vulnerability scanner with support for custom signatures and detailed reporting.*
 
-**Features**
-Flexible Target Input:
-Scan a single URL (-t) or multiple URLs from a file (-T).
-Signature-Based Scanning:
-Use specific signature files (-s) or scan with all available signatures (-S).
+![NHL-Scanner Logo](/static/nhl-scanner-cover-image.png)
 
-Lite Mode:
-Output only matches for a cleaner, concise report (-L).
-Database Logging:
-Automatically logs all scan results into an SQLite database for future analysis.
-Report Export:
-Generate HTML reports by scan ID or target for easy sharing and documentation.
+<p align="center">
+  <a href="#get-started">Get Started</a> •
+  <a href="#features">Features</a> •
+  <a href="#documentation">Documentation</a> •
+  <a href="#contributors-">Contributors ❤️</a> •
+  <a href="#license">License</a>
+</p>
 
-**Requirements**
-Python 3.6+
-Required Python Libraries:
-requests
-colorama
-sqlite3 (Standard Python Library)
-AND MORE...
+<p align="center">
 
+<img src="https://img.shields.io/badge/python-3.9+-blue.svg?style=for-the-badge&logo=python&logoColor=white">
+&nbsp;&nbsp;
+<img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge&logo=github">
+&nbsp;&nbsp;
+<a href="#documentation"><img src="https://img.shields.io/badge/documentation-%23000000.svg?style=for-the-badge&logo=read-the-docs&logoColor=white"></a>
 
+</p>
 
-Here’s the complete README file in plain text:
+---
 
-NHL-Scanner
-Overview
-NHL-Scanner is a powerful, flexible, and easy-to-use web vulnerability scanner built in Python. It leverages predefined templates (signatures) to identify vulnerabilities in web applications. The tool is ideal for security researchers and penetration testers seeking to automate vulnerability detection.
+## **Overview**
 
-With NHL-Scanner, you can:
+NHL-Scanner is a robust and lightweight vulnerability scanner designed for flexibility and precision. Whether you're scanning a single target, multiple targets, or crafting custom vulnerability templates, NHL-Scanner ensures efficient detection and reporting of vulnerabilities.
 
-Scan individual or multiple URLs for vulnerabilities.
-Use specific templates or scan with all available templates in bulk.
-Output results in color-coded terminal output and log them into an SQLite database.
-Operate in a "Lite" mode for concise, match-only results.
-Export detailed scan reports in HTML format for specific scan IDs or targets.
-Features
-Flexible Target Input:
-Scan a single URL (-t) or multiple URLs from a file (-T).
-Signature-Based Scanning:
-Use specific signature files (-s) or scan with all available signatures (-S).
-Color-Coded Output:
-Green: Vulnerabilities found (MATCH).
-Yellow: No vulnerabilities found (NOT MATCH).
-Red: Errors encountered during scanning (ERROR).
-Lite Mode:
-Output only matches for a cleaner, concise report (-L).
-Database Logging:
-Automatically logs all scan results into an SQLite database for future analysis.
-Report Export:
-Generate HTML reports by scan ID or target for easy sharing and documentation.
-Requirements
-Python 3.6+
-Required Python Libraries:
-requests
-colorama
-sqlite3 (Standard Python Library)
-Install the required libraries using:
+### **Why NHL-Scanner?**
+- **Custom Signatures**: Write your own signatures with `status code` or `keyword` matchers.
+- **Scalable Scanning**: Handle single or multiple target scans seamlessly.
+- **Detailed Reporting**: Generate HTML reports filtered by scan ID or target.
+- **User-Friendly**: Interactive CLI for creating custom signatures and managing scans.
 
-**install**
+---
+
+## **Table of Contents**
+
+- [Get Started](#get-started)
+- [Features](#features)
+  - [Single Target Scan](#single-target-scan)
+  - [Scan Multiple Targets](#scan-multiple-targets)
+  - [Generate Reports](#generate-reports)
+  - [Create Custom Signatures](#create-custom-signatures)
+- [Documentation](#documentation)
+- [Contributors ❤️](#contributors-️)
+- [License](#license)
+
+---
+
+## **Get Started**
+
+### **1. Installation**
+
+Install Python 3.9+ and clone the repository:
+
+```bash
+git clone https://github.com/HD-F0rensics/nhl-scanner.git
+cd nhl-scanner
 pip install -r requirements.txt
+```
 
-Usage
-Command-Line Arguments
-python NHL-Scanner.py [OPTIONS]
-Options:
-Flag	Description
--t, --target	Specify a single target URL.
--T, --targets	File containing multiple target URLs (one per line).
--s, --signature	Use a specific signature file (e.g., -s picker.json).
--S, --all_signatures	Use all signatures in the signatures folder.
--L, --lite	Lite mode: Print only matches.
---export-report	Export a report by scan-id or target to HTML format.
--h, --help	Display the help message and usage instructions.
+### **2. Running NHL-Scanner**
 
-python NHL-Scanner.py -t https://example.com -S
+Run the tool with the `-h` flag to explore the available options:
+
+```bash
+python nhl-scanner.py -h
+```
+
+---
+
+## **Features**
+
+### **Single Target Scan**
+
+Perform a quick scan against a single target using a specific signature:
+
+```bash
+python nhl-scanner.py -t https://example.com -s CUSTOM_signature.json
+```
+
+### **Scan Multiple Targets**
+
+Scan multiple targets by providing a file containing target URLs:
+
+```bash
+python nhl-scanner.py -T targets.txt -S
+```
+
+### **Generate Reports**
+
+Export a detailed HTML report for a specific scan ID:
+
+```bash
+python nhl-scanner.py --export-report scan-id:<your-scan-id>
+```
+
+Or generate a report for a specific target:
+
+```bash
+python nhl-scanner.py --export-report target:https://example.com
+```
+
+Reports are saved in the `reports/` folder.
+
+### **Create Custom Signatures**
+
+Easily create new signatures through an interactive CLI:
+
+```bash
+python nhl-scanner.py --create-sig
+```
+
+### **Lite Mode**
+
+Print only the matches during scans for cleaner output:
+
+```bash
+python nhl-scanner.py -t https://example.com -L
+```
+
+---
+
+## **Documentation**
+
+### **Command-Line Options**
+
+Explore the full list of available options:
+
+```bash
+python nhl-scanner.py -h
+```
+
+<details>
+  <summary>Expand command-line options</summary>
+
+```plaintext
+-t, --target               Specify a single target URL
+-T, --targets              File containing multiple target URLs
+-S, --all_signatures       Use all signatures in the 'signatures' folder
+-s, --signature            Use a specific signature file
+-L, --lite                 Lite mode: print only matches
+--export-report            Export a report by scan-id or target (e.g., scan-id:<id> or target:<url>)
+--create-sig               Create a custom signature interactively
+```
+
+</details>
+
+### **Example Scenarios**
+
+1. **Scanning with All Signatures**:
+    ```bash
+    python nhl-scanner.py -t https://example.com -S
+    ```
+
+2. **Exporting a Report**:
+    ```bash
+    python nhl-scanner.py --export-report scan-id:<your-scan-id>
+    ```
+
+3. **Creating a Custom Signature**:
+    ```bash
+    python nhl-scanner.py --create-sig
+    ```
+
+4. **Lite Mode Scanning**:
+    ```bash
+    python nhl-scanner.py -t https://example.com -L
+    ```
+
+---
+
+## **Contributors ❤️**
+
+Thanks to the amazing contributors who helped make this project successful! Contributions, bug reports, and feature requests are welcome.
+
+<p align="left">
+<a href="https://github.com/HD-F0rensics"><img src="https://avatars.githubusercontent.com/u/HD-F0rensics?v=4" width="50" height="50" alt="" style="max-width: 100%;"></a>
+<a href="https://github.com/contributor-profile"><img src="https://avatars.githubusercontent.com/u/contributor?v=4" width="50" height="50" alt="" style="max-width: 100%;"></a>
+<!-- Add more contributors as needed -->
+</p>
+
+---
+
+## **License**
+
+NHL-Scanner is distributed under the [MIT License](https://opensource.org/licenses/MIT).
+
+---
+
+Feel free to let me know if you need further customization or additional sections!
