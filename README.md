@@ -72,10 +72,6 @@ Install the required libraries using:
 **install**
 pip install -r requirements.txt
 
-**run**
-Run the scanner:
-python NHL-Scanner.py
-
 Usage
 Command-Line Arguments
 python NHL-Scanner.py [OPTIONS]
