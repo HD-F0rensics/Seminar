@@ -1,7 +1,7 @@
 # **NHL-Scanner**  
 *A high-performance web vulnerability scanner with support for custom signatures and detailed reporting.*
 
-![NHL-Scanner Logo](/blob/main/Files/NHL-LOGO.jpg)
+![NHL-Scanner Logo](/Files/NHL-LOGO.jpg)
 
 <p align="center">
   <a href="#get-started">Get Started</a> •
