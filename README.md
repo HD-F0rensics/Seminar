@@ -1,7 +1,3 @@
-Here’s a detailed and styled README file for **NHL-Scanner**, designed to look professional and informative:
-
----
-
 # **NHL-Scanner**  
 *A high-performance web vulnerability scanner with support for custom signatures and detailed reporting.*
 
@@ -11,15 +7,11 @@ Here’s a detailed and styled README file for **NHL-Scanner**, designed to look
   <a href="#get-started">Get Started</a> •
   <a href="#features">Features</a> •
   <a href="#documentation">Documentation</a> •
-  <a href="#contributors-">Contributors ❤️</a> •
-  <a href="#license">License</a>
 </p>
 
 <p align="center">
 
 <img src="https://img.shields.io/badge/python-3.9+-blue.svg?style=for-the-badge&logo=python&logoColor=white">
-&nbsp;&nbsp;
-<img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge&logo=github">
 &nbsp;&nbsp;
 <a href="#documentation"><img src="https://img.shields.io/badge/documentation-%23000000.svg?style=for-the-badge&logo=read-the-docs&logoColor=white"></a>
 
@@ -48,8 +40,6 @@ NHL-Scanner is a robust and lightweight vulnerability scanner designed for flexi
   - [Generate Reports](#generate-reports)
   - [Create Custom Signatures](#create-custom-signatures)
 - [Documentation](#documentation)
-- [Contributors ❤️](#contributors-️)
-- [License](#license)
 
 ---
 
@@ -70,7 +60,7 @@ pip install -r requirements.txt
 Run the tool with the `-h` flag to explore the available options:
 
 ```bash
-python nhl-scanner.py -h
+python nhl-scanner.py --help
 ```
 
 ---
@@ -134,7 +124,7 @@ python nhl-scanner.py -t https://example.com -L
 Explore the full list of available options:
 
 ```bash
-python nhl-scanner.py -h
+python nhl-scanner.py --help
 ```
 
 <details>
@@ -174,24 +164,4 @@ python nhl-scanner.py -h
     python nhl-scanner.py -t https://example.com -L
     ```
 
----
 
-## **Contributors ❤️**
-
-Thanks to the amazing contributors who helped make this project successful! Contributions, bug reports, and feature requests are welcome.
-
-<p align="left">
-<a href="https://github.com/HD-F0rensics"><img src="https://avatars.githubusercontent.com/u/HD-F0rensics?v=4" width="50" height="50" alt="" style="max-width: 100%;"></a>
-<a href="https://github.com/contributor-profile"><img src="https://avatars.githubusercontent.com/u/contributor?v=4" width="50" height="50" alt="" style="max-width: 100%;"></a>
-<!-- Add more contributors as needed -->
-</p>
-
----
-
-## **License**
-
-NHL-Scanner is distributed under the [MIT License](https://opensource.org/licenses/MIT).
-
----
-
-Feel free to let me know if you need further customization or additional sections!
