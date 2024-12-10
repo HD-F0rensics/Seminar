@@ -45,11 +45,11 @@ def export_report(conn, scan_id=None, target=None):
     # Query results based on scan_id or target
     if scan_id:
         cursor.execute("SELECT * FROM scan_results_v2 WHERE scan_id = ?", (scan_id,))
-        output_file = "NHL_Scanner_Report_" + scan_id + ".html"
+        report_name = "NHL_Scanner_Report_" + scan_id + ".html"
     elif target:
         cursor.execute("SELECT * FROM scan_results_v2 WHERE target = ?", (target,))
         domain = target.split("//")[-1].split("/")[0]
-        output_file = "NHL_Scanner_Report_" + domain + ".html"
+        report_name = "NHL_Scanner_Report_" + domain + ".html"
     else:
         print(f"{Fore.RED}[!] Error: You must specify either a scan-id or a target for the report.")
         return
@@ -58,6 +58,14 @@ def export_report(conn, scan_id=None, target=None):
     if not results:
         print(f"{Fore.YELLOW}[!] No results found for the given criteria.")
         return
+
+    # Ensure the reports directory exists
+    reports_folder = "reports"
+    if not os.path.exists(reports_folder):
+        os.makedirs(reports_folder)
+
+    # Full path for the report file
+    output_file = os.path.join(reports_folder, report_name)
 
     # Generate HTML content
     html_content = f"""
@@ -372,12 +380,9 @@ def main():
         parser.print_help()
         return
 
-    
-
     # Generate a unique scan ID
     scan_id = str(uuid.uuid4())
     
-
     for target in targets:
         for signature in signatures:
             print(f"Scanning {target} with signature {signature}...")
