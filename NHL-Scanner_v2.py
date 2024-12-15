@@ -7,10 +7,10 @@ from datetime import datetime
 from colorama import Fore, Style, init
 import uuid  # For generating scan-id
 
-# Initialize colorama
+# start colorama
 init(autoreset=True)
 
-# Initialize or connect to SQLite database
+# start or connect to SQLite database
 def initialize_db(db_name="scan_results_v2.db"):
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
@@ -19,27 +19,35 @@ def initialize_db(db_name="scan_results_v2.db"):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             target TEXT NOT NULL,
             signature TEXT NOT NULL,
+            severity TEXT DEFAULT 'info',
             status TEXT NOT NULL,
             message TEXT,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
             scan_id TEXT NOT NULL
         )
     """)
+    # CONN: sqlite3 scan_results_v2.db --> SELECT * FROM scan_results_v2;
     conn.commit()
     return conn
 
 
 # Function to save results to the database
-def save_result_to_db(conn, target, signature, status, message, scan_id):
+def save_result_to_db(conn, target, signature, severity, status, message, scan_id):
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO scan_results_v2 (target, signature, status, message, scan_id)
-        VALUES (?, ?, ?, ?, ?)
-    """, (target, signature, status, message, scan_id))
+        INSERT INTO scan_results_v2 (target, signature, severity, status, message, scan_id)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (target, signature, severity, status, message, scan_id))
     conn.commit()
 
 # Function to export report
+# Export report as an HTML file
+# Function to export report with statistics and details
 def export_report(conn, scan_id=None, target=None):
+    import os
+    script_location = os.path.dirname(os.path.abspath(__file__))
+    logo_path = os.path.join(script_location, "Files", "NHL-LOGO.jpg")
+
     cursor = conn.cursor()
 
     # Query results based on scan_id or target
@@ -59,6 +67,27 @@ def export_report(conn, scan_id=None, target=None):
         print(f"{Fore.YELLOW}[!] No results found for the given criteria.")
         return
 
+    # Prepare data for statistics, including only entries with MATCH status
+    severity_count = {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "info": 0,
+    }
+
+    matches_by_target = {}
+    for row in results:
+        target, severity, status = row[1], row[3].lower(), row[4].upper()
+        if status == "MATCH":
+            if severity in severity_count:
+                severity_count[severity] += 1
+            matches_by_target[target] = matches_by_target.get(target, 0) + 1
+
+    # Sort matches by the highest number
+    sorted_matches = sorted(matches_by_target.items(), key=lambda x: x[1], reverse=True)
+    highest_match_count = sorted_matches[0][1] if sorted_matches else 0
+
     # Ensure the reports directory exists
     reports_folder = "reports"
     if not os.path.exists(reports_folder):
@@ -73,46 +102,185 @@ def export_report(conn, scan_id=None, target=None):
     <head>
         <title>NHL Scanner Report</title>
         <style>
-            body {{ font-family: Arial, sans-serif; }}
-            table {{ border-collapse: collapse; width: 100%; margin-top: 20px; }}
-            th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-            th {{ background-color: #f2f2f2; }}
-            tr:hover {{ background-color: #f5f5f5; }}
-            .match {{ color: green; }}
-            .not-match {{ color: orange; }}
-            .error {{ color: red; }}
+            body {{
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                background-color: #d3d3d3; /* Light gray background */
+                color: #333;
+            }}
+            header {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 2px solid #555;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }}
+            header img {{
+                height: 500px; /* Larger logo size */
+                width: 500px;
+                object-fit: cover; /* Ensures proper scaling */
+            }}
+            header h1 {{
+                font-size: 130px; /* Proportionally larger title */
+                color: #222;
+                margin: 0;
+                text-align: left;
+            }}
+            table {{
+                border-collapse: collapse;
+                width: 100%;
+                margin-top: 20px;
+                background-color: #fff;
+                box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            }}
+            th, td {{
+                border: 1px solid #ddd;
+                padding: 10px;
+                text-align: left;
+            }}
+            th {{
+                background-color: #f2f2f2;
+                color: #222;
+                font-size: 14px;
+            }}
+            tr:hover {{
+                background-color: #f9f9f9;
+            }}
+            .box {{
+                display: inline-block;
+                width: 150px;
+                height: 150px;
+                margin: 10px;
+                color: white;
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+                line-height: 1.5; /* Center align title and numbers */
+                border-radius: 8px;
+                position: relative;
+                vertical-align: middle;
+            }}
+            .critical-box {{ background-color: darkred; }}
+            .high-box {{ background-color: red; }}
+            .medium-box {{ background-color: orange; }}
+            .low-box {{ background-color: lightgreen; color: black; }}
+            .info-box {{ background-color: blue; }}
+            .box p {{
+                margin: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }}
+            .box-title {{
+                font-size: 18px;
+                font-weight: bold;
+                margin: 0;
+            }}
+            .box-number {{
+                font-size: 32px;
+                margin: 0;
+            }}
+            .highlight {{
+                background-color: red; 
+                color: white; 
+                font-weight: bold;
+            }}
+            .match-text {{ color: green; font-weight: bold; }}
+            .not-match-text {{ color: orange; font-weight: bold; }}
         </style>
     </head>
     <body>
-        <h1>NHL Scanner Report</h1>
+        <header>
+            <h1>NHL Scanner Report</h1>
+            <img src="{logo_path}" alt="NHL Scanner Logo">
+        </header>
         <p>Report generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+
+        <!-- Page 1: Statistics -->
+        <h2>Vulnerable Targets Statistics</h2>
+        <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+            <div class="box critical-box">
+                <p>
+                    <span class="box-title">Critical</span><br>
+                    <span class="box-number">{severity_count['critical']}</span>
+                </p>
+            </div>
+            <div class="box high-box">
+                <p>
+                    <span class="box-title">High</span><br>
+                    <span class="box-number">{severity_count['high']}</span>
+                </p>
+            </div>
+            <div class="box medium-box">
+                <p>
+                    <span class="box-title">Medium</span><br>
+                    <span class="box-number">{severity_count['medium']}</span>
+                </p>
+            </div>
+            <div class="box low-box">
+                <p>
+                    <span class="box-title">Low</span><br>
+                    <span class="box-number">{severity_count['low']}</span>
+                </p>
+            </div>
+            <div class="box info-box">
+                <p>
+                    <span class="box-title">Info</span><br>
+                    <span class="box-number">{severity_count['info']}</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Matches by Target -->
+        <h2 style="margin-top: 40px;">Matches by Target</h2>
+        <table>
+            <tr>
+                <th>Target</th>
+                <th>Matches</th>
+            </tr>
     """
 
-    if scan_id:
-        html_content += f"<p>Scan ID: {scan_id}</p>"
-    elif target:
-        html_content += f"<p>Target: {target}</p>"
+    # Populate Matches by Target
+    for target, match_count in sorted_matches:
+        row_style = "highlight" if match_count == highest_match_count else ""
+        html_content += f"""
+            <tr class="{row_style}">
+                <td>{target}</td>
+                <td style="text-align: center;">{match_count}</td>
+            </tr>
+        """
 
+    # Page 2 - Details
     html_content += """
+        </table>
+        <h2>Detailed Results</h2>
         <table>
             <tr>
                 <th>Target</th>
                 <th>Signature</th>
                 <th>Status</th>
+                <th>Severity</th>
                 <th>Message</th>
                 <th>Timestamp</th>
                 <th>Scan ID</th>
             </tr>
     """
 
+    # Populate Detailed Results
     for row in results:
-        target, signature, status, message, timestamp, scan_id = row[1:]
-        status_class = "match" if status == "MATCH" else "not-match" if status == "NOT MATCH" else "error"
+        target, signature, severity, status, message, timestamp, scan_id = row[1:]
+        severity_class = severity.lower()
+        status_class = "match-text" if status == "MATCH" else "not-match-text"
+
         html_content += f"""
             <tr>
                 <td>{target}</td>
                 <td>{signature}</td>
                 <td class="{status_class}">{status}</td>
+                <td class="{severity_class}">{severity.capitalize()}</td>
                 <td>{message}</td>
                 <td>{timestamp}</td>
                 <td>{scan_id}</td>
@@ -125,14 +293,21 @@ def export_report(conn, scan_id=None, target=None):
     </html>
     """
 
-    # Save HTML file
-    
+    # Save the report
     with open(output_file, "w") as file:
         file.write(html_content)
 
     print(f"{Fore.GREEN}[+] Report successfully generated: {output_file}")
 
 
+
+
+
+
+
+
+
+# Function to run the CVE signature
 def run_sig(signature_name, target):
     file_path = os.path.join("signatures", signature_name)
 
@@ -156,6 +331,8 @@ def run_sig(signature_name, target):
         http_method = parsed_json['http'][0]['method']
         path = parsed_json['http'][0]['path'][0].replace("{{BaseURL}}", target)
         sig_id = parsed_json['id']
+        severity = parsed_json['info'].get('severity', 'info')
+        
 
         match_parameter = None
         match_parameter_type = None
@@ -182,26 +359,30 @@ def run_sig(signature_name, target):
         if match_parameter_type == "word" and match_parameter in response.text:
             return {
                 "status": "MATCH",
-                "message": f"{Fore.GREEN}[*] MATCH - [{match_parameter}] - {target} may be vulnerable to {sig_id}"
+                "message": f"{Fore.GREEN}[*] MATCH - [{match_parameter}] - {target} may be vulnerable to {sig_id}",
+                "severity": severity
             }
         elif match_parameter_type == "status" and match_parameter == response.status_code:
             return {
                 "status": "MATCH",
-                "message": f"{Fore.GREEN}[*] MATCH - [{match_parameter}] - {target} may be vulnerable to {sig_id}"
+                "message": f"{Fore.GREEN}[*] MATCH - [{match_parameter}] - {target} may be vulnerable to {sig_id}",
+                "severity": severity
             }
         else:
             return {
                 "status": "NOT MATCH",
-                "message": f"[-] NOT MATCH - [{match_parameter}] - {target} not vulnerable to {sig_id}"
+                "message": f"[-] NOT MATCH - [{match_parameter}] - {target} not vulnerable to {sig_id}",
+                "severity": severity
             }
     except requests.RequestException as e:
         return {
             "status": "ERROR",
-            "message": f"{Fore.RED}An error occurred: {e}"
+            "message": f"{Fore.RED}An error occurred: {e}",
+            "severity": severity
         }
 
 
-# Function to create a custom signature
+# Function to create a custom signature by user
 def create_signature():
     print(f"{Fore.BLUE}[+] Let's create a custom signature.")
     # Collect general signature info
@@ -306,16 +487,18 @@ def main():
 @HD-F0rensics - github.com/HD-F0rensics/Seminar
 """
     print(logo)
-    parser = argparse.ArgumentParser(description="Web vulnerability scanner using predefined signatures.")
-
+    parser = argparse.ArgumentParser(description="Web vulnerability scanner using CVE signatures.")
+    # Arguments for run new scan
     parser.add_argument("-t", "--target", help="Specify a single target URL", type=str)
     parser.add_argument("-T", "--targets", help="File containing multiple target URLs", type=str)
     parser.add_argument("-S", "--all_signatures", help="Use all signatures in the 'signatures' folder", action="store_true")
     parser.add_argument("-s", "--signature", help="Use a specific signature file", type=str)
     parser.add_argument("-L", "--lite", help="Lite mode: print only matches", action="store_true")
-
+    
+    # Argument for report
     parser.add_argument("--export-report", help="Export a report by scan-id or target. Use 'scan-id:<id>' or 'target:<target>", type=str)
 
+    # Argument for custom CVE signature
     parser.add_argument("--create-sig", help="Create a custom signature", action="store_true")
 
     args = parser.parse_args()
@@ -323,12 +506,12 @@ def main():
     conn = initialize_db()
 
 
-    # Handle custom signature creation
+    # Custom signature creation
     if args.create_sig:
         create_signature()
         return
 
-    # Export report if requested
+    # Export report 
     if args.export_report:
         if args.export_report.startswith("scan-id:"):
             scan_id = args.export_report.split("scan-id:")[1]
@@ -340,7 +523,7 @@ def main():
             print(f"{Fore.RED}[!] Invalid --export-report format. Use 'scan-id:<id>' or 'target:<target>'")
         return
 
-
+    # New scan
     if not args.target and not args.targets:
         print(f"{Fore.RED}[!] Error: You must specify either a single target (-t) or a targets file (-T).")
         parser.print_help()
@@ -357,6 +540,7 @@ def main():
     elif args.targets:
         if os.path.exists(args.targets):
             with open(args.targets, 'r') as file:
+                # Clean (strip) and stores (readlines) each line from the input file as a list of targets
                 targets = [line.strip() for line in file.readlines()]
         else:
             print(f"{Fore.RED}[!] Error: The file '{args.targets}' does not exist.")
@@ -387,7 +571,7 @@ def main():
         for signature in signatures:
             print(f"Scanning {target} with signature {signature}...")
             result = run_sig(signature, target)
-            save_result_to_db(conn, target, signature, result["status"], result["message"], scan_id)
+            save_result_to_db(conn, target, signature, result["severity"], result["status"], result["message"], scan_id)
             if args.lite:
                 if result["status"] == "MATCH":
                     print(result["message"])

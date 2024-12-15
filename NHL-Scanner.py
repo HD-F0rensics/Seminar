@@ -7,10 +7,10 @@ from datetime import datetime
 from colorama import Fore, Style, init
 import uuid  # For generating scan-id
 
-# Initialize colorama
+# start colorama
 init(autoreset=True)
 
-# Initialize or connect to SQLite database
+# start or connect to SQLite database
 def initialize_db(db_name="scan_results_v2.db"):
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
@@ -25,6 +25,7 @@ def initialize_db(db_name="scan_results_v2.db"):
             scan_id TEXT NOT NULL
         )
     """)
+    # CONN: sqlite3 scan_results_v2.db --> SELECT * FROM scan_results_v2;
     conn.commit()
     return conn
 
@@ -45,11 +46,11 @@ def export_report(conn, scan_id=None, target=None):
     # Query results based on scan_id or target
     if scan_id:
         cursor.execute("SELECT * FROM scan_results_v2 WHERE scan_id = ?", (scan_id,))
-        output_file = "NHL_Scanner_Report_" + scan_id + ".html"
+        report_name = "NHL_Scanner_Report_" + scan_id + ".html"
     elif target:
         cursor.execute("SELECT * FROM scan_results_v2 WHERE target = ?", (target,))
         domain = target.split("//")[-1].split("/")[0]
-        output_file = "NHL_Scanner_Report_" + domain + ".html"
+        report_name = "NHL_Scanner_Report_" + domain + ".html"
     else:
         print(f"{Fore.RED}[!] Error: You must specify either a scan-id or a target for the report.")
         return
@@ -58,6 +59,14 @@ def export_report(conn, scan_id=None, target=None):
     if not results:
         print(f"{Fore.YELLOW}[!] No results found for the given criteria.")
         return
+
+    # Ensure the reports directory exists
+    reports_folder = "reports"
+    if not os.path.exists(reports_folder):
+        os.makedirs(reports_folder)
+
+    # Full path for the report file
+    output_file = os.path.join(reports_folder, report_name)
 
     # Generate HTML content
     html_content = f"""
@@ -124,7 +133,7 @@ def export_report(conn, scan_id=None, target=None):
 
     print(f"{Fore.GREEN}[+] Report successfully generated: {output_file}")
 
-
+# Function to run the CVE signature
 def run_sig(signature_name, target):
     file_path = os.path.join("signatures", signature_name)
 
@@ -152,7 +161,7 @@ def run_sig(signature_name, target):
         match_parameter = None
         match_parameter_type = None
         if parsed_json['http'][0]['matchers'][0]['type'] == "word":
-            match_parameter = parsed_json['http'][0]['matchers'][0]['words']
+            match_parameter = parsed_json['http'][0]['matchers'][0]['word']
             match_parameter_type = "word"
         elif parsed_json['http'][0]['matchers'][0]['type'] == "status":
             match_parameter = parsed_json['http'][0]['matchers'][0]['status']
@@ -193,33 +202,136 @@ def run_sig(signature_name, target):
         }
 
 
+# Function to create a custom signature by user
+def create_signature():
+    print(f"{Fore.BLUE}[+] Let's create a custom signature.")
+    # Collect general signature info
+    custom_sig_name = str(input("Enter the name of the json file (e.g. picker): ").strip())
+    sig_id = input("Enter the ID for this signature (e.g., CVE-2023-0001): ").strip()
+    name = input("Enter the name of the vulnerability (e.g., Example Vulnerability): ").strip()
+    author = input("Enter author name: ").strip()
+    # Choose severity level
+    print("\nChoose severity level:")
+    print("[1] High")
+    print("[2] Medium")
+    print("[3] Low")
+    while True:
+        severity_choice = input("Enter your choice (1, 2, or 3): ").strip()
+        if severity_choice == "1":
+            severity = "high"
+            break
+        elif severity_choice == "2":
+            severity = "medium"
+            break
+        elif severity_choice == "3":
+            severity = "low"
+            break
+        else:
+            print(f"{Fore.RED}[!] Invalid choice. Please enter 1, 2, or 3.")    
+    
+    description = input("Enter a description of the vulnerability: ").strip()
+    tags = input("Enter tags (comma-separated, e.g., tech,example,vuln): ").strip().split(',')
+
+    # Collect HTTP request info
+    method = input("Enter the HTTP method (e.g., GET, POST): ").strip()
+    path = str(input("Enter the URL path (e.g., /example/path): ").strip())
+
+    # Choose matcher type
+    print("\nChoose matcher type:")
+    print("[1] status")
+    print("[2] word")
+    while True:
+        matcher_choice = input("Enter your choice (1 or 2): ").strip()
+        if matcher_choice == "1":
+            matcher_type = "status"
+            match_value = int(input("Enter the expected status code (e.g., 200): "))
+            break
+        elif matcher_choice == "2":
+            matcher_type = "word"
+            match_value = str(input("Enter the expected word/phrase in the response (e.g., Example phrase): ".strip()))
+            break
+        else:
+            print(f"{Fore.RED}[!] Invalid choice. Please enter 1 or 2.")
+
+
+    # Build the JSON structure
+    signature = {
+        "id": sig_id,
+        "info": {
+            "name": "CUSTOM_" + name,
+            "author": author,
+            "severity": severity,
+            "description": description,
+            "metadata": {
+                "max-request": 1
+            },
+            "tags": tags
+        },
+        "http": [
+            {
+                "method": method,
+                "path": ["{{BaseURL}}/" + path],
+                "matchers": [
+                    {
+                        "type": matcher_type,
+                        matcher_type: match_value
+                    }
+                ]
+            }
+        ]
+    }
+
+    # Save the signature to the signatures folder
+    signatures_folder = "signatures"
+    if not os.path.exists(signatures_folder):
+        os.makedirs(signatures_folder)
+    
+    signature_file = os.path.join(signatures_folder, f"CUSTOM_{custom_sig_name}.json")
+    with open(signature_file, "w") as file:
+        json.dump(signature, file, indent=4)
+    
+    print(f"{Fore.GREEN}[+] Signature saved successfully: {signature_file}")
+
+
 
 
 def main():
     # Created with text2art("NHL   Scanner")
-    logo = fr"""{Fore.BLUE}
+    logo = fr"""{Fore.CYAN}
  _   _  _   _  _         ____
 | \ | || | | || |       / ___|   ___   __ _  _ __   _ __    ___  _ __
 |  \| || |_| || |       \___ \  / __| / _` || '_ \ | '_ \  / _ \| '__|
 | |\  ||  _  || |___     ___) || (__ | (_| || | | || | | ||  __/| |
 |_| \_||_| |_||_____|   |____/  \___| \__,_||_| |_||_| |_| \___||_| v1.0
-                                                                        BY NOFAR HILA LIRON @
+                                                                         BY NOFAR HILA LIRON @
 @HD-F0rensics - github.com/HD-F0rensics/Seminar
 """
     print(logo)
-    parser = argparse.ArgumentParser(description="Web vulnerability scanner using predefined signatures.")
+    parser = argparse.ArgumentParser(description="Web vulnerability scanner using CVE signatures.")
+    # Arguments for run new scan
     parser.add_argument("-t", "--target", help="Specify a single target URL", type=str)
     parser.add_argument("-T", "--targets", help="File containing multiple target URLs", type=str)
     parser.add_argument("-S", "--all_signatures", help="Use all signatures in the 'signatures' folder", action="store_true")
     parser.add_argument("-s", "--signature", help="Use a specific signature file", type=str)
     parser.add_argument("-L", "--lite", help="Lite mode: print only matches", action="store_true")
-    parser.add_argument("--export-report", help="Export a report by scan-id or target", type=str)
+    
+    # Argument for report
+    parser.add_argument("--export-report", help="Export a report by scan-id or target. Use 'scan-id:<id>' or 'target:<target>", type=str)
+
+    # Argument for custom CVE signature
+    parser.add_argument("--create-sig", help="Create a custom signature", action="store_true")
 
     args = parser.parse_args()
 
     conn = initialize_db()
 
-    # Export report if requested
+
+    # Custom signature creation
+    if args.create_sig:
+        create_signature()
+        return
+
+    # Export report 
     if args.export_report:
         if args.export_report.startswith("scan-id:"):
             scan_id = args.export_report.split("scan-id:")[1]
@@ -231,6 +343,7 @@ def main():
             print(f"{Fore.RED}[!] Invalid --export-report format. Use 'scan-id:<id>' or 'target:<target>'")
         return
 
+    # New scan
     if not args.target and not args.targets:
         print(f"{Fore.RED}[!] Error: You must specify either a single target (-t) or a targets file (-T).")
         parser.print_help()
@@ -247,6 +360,7 @@ def main():
     elif args.targets:
         if os.path.exists(args.targets):
             with open(args.targets, 'r') as file:
+                # Clean (strip) and stores (readlines) each line from the input file as a list of targets
                 targets = [line.strip() for line in file.readlines()]
         else:
             print(f"{Fore.RED}[!] Error: The file '{args.targets}' does not exist.")
@@ -270,12 +384,9 @@ def main():
         parser.print_help()
         return
 
-    
-
     # Generate a unique scan ID
     scan_id = str(uuid.uuid4())
     
-
     for target in targets:
         for signature in signatures:
             print(f"Scanning {target} with signature {signature}...")
