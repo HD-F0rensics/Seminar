@@ -161,7 +161,7 @@ python nhl-scanner.py --help
 
 4. **Lite Mode Scanning**:
     ```bash
-    python nhl-scanner.py -t https://example.com -L
+    python nhl-scanner.py -t https://example.com -S -L
     ```
 
 
