@@ -275,6 +275,10 @@ def export_report(conn, scan_id=None, target=None):
         severity_class = severity.lower()
         status_class = "match-text" if status == "MATCH" else "not-match-text"
 
+        # Clean the message - bug fixed
+        message = message.split("[*]")[-1] if "[*]" in message else message
+
+
         html_content += f"""
             <tr>
                 <td>{target}</td>
@@ -392,25 +396,33 @@ def create_signature():
     author = input("Enter author name: ").strip()
     # Choose severity level
     print("\nChoose severity level:")
-    print("[1] High")
-    print("[2] Medium")
-    print("[3] Low")
+    print("[1] Critical")
+    print("[2] High")
+    print("[3] Medium")
+    print("[4] Low")
+    print("[5] Info")
     while True:
-        severity_choice = input("Enter your choice (1, 2, or 3): ").strip()
+        severity_choice = input("Enter your choice (1, 2, 3, 4 or 5): ").strip()
         if severity_choice == "1":
-            severity = "high"
+            severity = "critical"
             break
         elif severity_choice == "2":
-            severity = "medium"
+            severity = "high"
             break
         elif severity_choice == "3":
+            severity = "medium"
+            break
+        elif severity_choice == "4":
             severity = "low"
             break
+        elif severity_choice == "5":
+            severity = "info"
+            break
         else:
-            print(f"{Fore.RED}[!] Invalid choice. Please enter 1, 2, or 3.")    
+            print(f"{Fore.RED}[!] Invalid choice. Please enter 1, 2, 3, 4 or 5.")    
     
     description = input("Enter a description of the vulnerability: ").strip()
-    tags = input("Enter tags (comma-separated, e.g., tech,example,vuln): ").strip().split(',')
+    tags = input("Enter tags (comma-separated, e.g., tech,RCE,xss): ").strip().split(',')
 
     # Collect HTTP request info
     method = input("Enter the HTTP method (e.g., GET, POST): ").strip()
@@ -523,7 +535,7 @@ def main():
             print(f"{Fore.RED}[!] Invalid --export-report format. Use 'scan-id:<id>' or 'target:<target>'")
         return
 
-    # New scan
+    # New scan error managment
     if not args.target and not args.targets:
         print(f"{Fore.RED}[!] Error: You must specify either a single target (-t) or a targets file (-T).")
         parser.print_help()
@@ -567,6 +579,7 @@ def main():
     # Generate a unique scan ID
     scan_id = str(uuid.uuid4())
     
+    # output
     for target in targets:
         for signature in signatures:
             print(f"Scanning {target} with signature {signature}...")
