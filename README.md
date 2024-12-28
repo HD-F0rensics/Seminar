@@ -50,8 +50,8 @@ NHL-Scanner is a robust and lightweight vulnerability scanner designed for flexi
 Install Python 3.9+ and clone the repository:
 
 ```bash
-git clone https://github.com/HD-F0rensics/nhl-scanner.git
-cd nhl-scanner
+git clone https://github.com/HD-F0rensics/Seminar.git
+cd Seminar
 pip install -r requirements.txt
 ```
 
@@ -60,7 +60,7 @@ pip install -r requirements.txt
 Run the tool with the `-h` flag to explore the available options:
 
 ```bash
-python nhl-scanner.py --help
+python NHL-Scanner_v2.py --help
 ```
 
 ---
@@ -72,7 +72,7 @@ python nhl-scanner.py --help
 Perform a quick scan against a single target using a specific signature:
 
 ```bash
-python nhl-scanner.py -t https://example.com -s CUSTOM_signature.json
+python NHL-Scanner_v2.py -t https://example.com -s CUSTOM_signature.json
 ```
 
 ### **Scan Multiple Targets**
@@ -80,7 +80,7 @@ python nhl-scanner.py -t https://example.com -s CUSTOM_signature.json
 Scan multiple targets by providing a file containing target URLs:
 
 ```bash
-python nhl-scanner.py -T targets.txt -S
+python NHL-Scanner_v2.py -T targets.txt -S
 ```
 
 ### **Generate Reports**
@@ -88,13 +88,13 @@ python nhl-scanner.py -T targets.txt -S
 Export a detailed HTML report for a specific scan ID:
 
 ```bash
-python nhl-scanner.py --export-report scan-id:<your-scan-id>
+python NHL-Scanner_v2.py --export-report scan-id:<your-scan-id>
 ```
 
 Or generate a report for a specific target:
 
 ```bash
-python nhl-scanner.py --export-report target:https://example.com
+python NHL-Scanner_v2.py --export-report target:https://example.com
 ```
 
 Reports are saved in the `reports/` folder.
@@ -104,7 +104,7 @@ Reports are saved in the `reports/` folder.
 Easily create new signatures through an interactive CLI:
 
 ```bash
-python nhl-scanner.py --create-sig
+python NHL-Scanner_v2.py --create-sig
 ```
 
 ### **Lite Mode**
@@ -112,7 +112,7 @@ python nhl-scanner.py --create-sig
 Print only the matches during scans for cleaner output:
 
 ```bash
-python nhl-scanner.py -t https://example.com -L
+python NHL-Scanner_v2.py -t https://example.com -L
 ```
 
 ---
@@ -124,7 +124,7 @@ python nhl-scanner.py -t https://example.com -L
 Explore the full list of available options:
 
 ```bash
-python nhl-scanner.py --help
+python NHL-Scanner_v2.py --help
 ```
 
 <details>
@@ -146,22 +146,22 @@ python nhl-scanner.py --help
 
 1. **Scanning with All Signatures**:
     ```bash
-    python nhl-scanner.py -t https://example.com -S
+    python NHL-Scanner_v2.py -t https://example.com -S
     ```
 
 2. **Exporting a Report**:
     ```bash
-    python nhl-scanner.py --export-report scan-id:<your-scan-id>
+    python NHL-Scanner_v2.py --export-report scan-id:<your-scan-id>
     ```
 
 3. **Creating a Custom Signature**:
     ```bash
-    python nhl-scanner.py --create-sig
+    python NHL-Scanner_v2.py --create-sig
     ```
 
 4. **Lite Mode Scanning**:
     ```bash
-    python nhl-scanner.py -t https://example.com -S -L
+    python NHL-Scanner_v2.py -t https://example.com -S -L
     ```
 
 
