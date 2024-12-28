@@ -1,0 +1,29 @@
+{
+    "id": "CVE-2021-6070",
+    "info": {
+        "name": "CUSTOM_Ivanti Connect Secure Auth Bypass and RCE",
+        "author": "Hilad",
+        "severity": "Low",
+        "description": "During this phase, a GET request is made to the /api/v1/totp/user-backup-code/../../system/system-information URI. This request exploits the authentication bypass vulnerability to gain access to system information. A successful request, indicated by a 200 OK response, suggests that the system is vulnerable",
+        "metadata": {
+            "max-request": 1
+        },
+        "tags": [
+            "RCE"
+        ]
+    },
+    "http": [
+        {
+            "method": "GET",
+            "path": [
+                "{{BaseURL}}/api/v1/totp/user-backup-code"
+            ],
+            "matchers": [
+                {
+                    "type": "status",
+                    "status": 200
+                }
+            ]
+        }
+    ]
+}

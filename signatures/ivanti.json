@@ -1,0 +1,29 @@
+{
+    "id": "sdf",
+    "info": {
+        "name": "CUSTOM_sd",
+        "author": "sdf",
+        "severity": "Critical",
+        "description": "sf",
+        "metadata": {
+            "max-request": 1
+        },
+        "tags": [
+            ""
+        ]
+    },
+    "http": [
+        {
+            "method": "get",
+            "path": [
+                "{{BaseURL}}//HD-F0rensics/Seminar"
+            ],
+            "matchers": [
+                {
+                    "type": "status",
+                    "status": 404
+                }
+            ]
+        }
+    ]
+}

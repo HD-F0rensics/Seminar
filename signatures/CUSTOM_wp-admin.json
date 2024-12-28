@@ -1,0 +1,29 @@
+{
+    "id": "CVE-2023-3604",
+    "info": {
+        "name": "CUSTOM_WP Admin Login WordPress plugin",
+        "author": "Hilad",
+        "severity": "medium",
+        "description": "The Change WP Admin Login WordPress plugin before 1.1.4 discloses the URL of the hidden login page when accessing a crafted URL, bypassing the protection offered.",
+        "metadata": {
+            "max-request": 1
+        },
+        "tags": [
+            ""
+        ]
+    },
+    "http": [
+        {
+            "method": "GET",
+            "path": [
+                "{{BaseURL}}/wp-admin.php"
+            ],
+            "matchers": [
+                {
+                    "type": "word",
+                    "word": "Password"
+                }
+            ]
+        }
+    ]
+}
