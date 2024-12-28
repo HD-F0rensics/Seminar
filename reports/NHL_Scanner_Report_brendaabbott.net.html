@@ -1,0 +1,307 @@
+
+    <html>
+    <head>
+        <title>NHL Scanner Report</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                background-color: #d3d3d3; /* Light gray background */
+                color: #333;
+            }
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 2px solid #555;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+            header img {
+                height: 500px; /* Larger logo size */
+                width: 500px;
+                object-fit: cover; /* Ensures proper scaling */
+            }
+            header h1 {
+                font-size: 130px; /* Proportionally larger title */
+                color: #222;
+                margin: 0;
+                text-align: left;
+            }
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-top: 20px;
+                background-color: #fff;
+                box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 10px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+                color: #222;
+                font-size: 14px;
+            }
+            tr:hover {
+                background-color: #f9f9f9;
+            }
+            .box {
+                display: inline-block;
+                width: 150px;
+                height: 150px;
+                margin: 10px;
+                color: white;
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+                line-height: 1.5; /* Center align title and numbers */
+                border-radius: 8px;
+                position: relative;
+                vertical-align: middle;
+            }
+            .critical-box { background-color: darkred; }
+            .high-box { background-color: red; }
+            .medium-box { background-color: orange; }
+            .low-box { background-color: lightgreen; color: black; }
+            .info-box { background-color: blue; }
+            .box p {
+                margin: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }
+            .box-title {
+                font-size: 18px;
+                font-weight: bold;
+                margin: 0;
+            }
+            .box-number {
+                font-size: 32px;
+                margin: 0;
+            }
+            .highlight {
+                background-color: red; 
+                color: white; 
+                font-weight: bold;
+            }
+            .match-text { color: green; font-weight: bold; }
+            .not-match-text { color: orange; font-weight: bold; }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>NHL Scanner Report</h1>
+            <img src="C:\Ono BA\Seminar_Work\Files\NHL-LOGO.jpg" alt="NHL Scanner Logo">
+        </header>
+        <p>Report generated on: 2024-12-18 17:27:06</p>
+
+        <!-- Page 1: Statistics -->
+        <h2>Vulnerable Targets Statistics</h2>
+        <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+            <div class="box critical-box">
+                <p>
+                    <span class="box-title">Critical</span><br>
+                    <span class="box-number">1</span>
+                </p>
+            </div>
+            <div class="box high-box">
+                <p>
+                    <span class="box-title">High</span><br>
+                    <span class="box-number">2</span>
+                </p>
+            </div>
+            <div class="box medium-box">
+                <p>
+                    <span class="box-title">Medium</span><br>
+                    <span class="box-number">2</span>
+                </p>
+            </div>
+            <div class="box low-box">
+                <p>
+                    <span class="box-title">Low</span><br>
+                    <span class="box-number">0</span>
+                </p>
+            </div>
+            <div class="box info-box">
+                <p>
+                    <span class="box-title">Info</span><br>
+                    <span class="box-number">0</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Matches by Target -->
+        <h2 style="margin-top: 40px;">Matches by Target</h2>
+        <table>
+            <tr>
+                <th>Target</th>
+                <th>Matches</th>
+            </tr>
+    
+            <tr class="highlight">
+                <td>https://brendaabbott.net</td>
+                <td style="text-align: center;">6</td>
+            </tr>
+        
+        </table>
+        <h2>Detailed Results</h2>
+        <table>
+            <tr>
+                <th>Target</th>
+                <th>Signature</th>
+                <th>Status</th>
+                <th>Severity</th>
+                <th>Message</th>
+                <th>Timestamp</th>
+                <th>Scan ID</th>
+            </tr>
+    
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>CUSTOM_ivanti.json</td>
+                <td class="not-match-text">NOT MATCH</td>
+                <td class="high">High</td>
+                <td>[-] NOT MATCH - [200] - https://brendaabbott.net not vulnerable to CVE-2023-46805</td>
+                <td>2024-12-15 14:00:59</td>
+                <td>56fc629c-8659-4a9b-8730-2e2522857811</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>CUSTOM_Ivanti_RCE.json</td>
+                <td class="not-match-text">NOT MATCH</td>
+                <td class="high">High</td>
+                <td>[-] NOT MATCH - [200] - https://brendaabbott.net not vulnerable to CVE-2021-6070</td>
+                <td>2024-12-15 14:01:00</td>
+                <td>56fc629c-8659-4a9b-8730-2e2522857811</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>CUSTOM_wordpress.json</td>
+                <td class="match-text">MATCH</td>
+                <td class="medium">Medium</td>
+                <td> MATCH - [404] - https://brendaabbott.net may be vulnerable to CVE-2019-0605</td>
+                <td>2024-12-15 14:01:01</td>
+                <td>56fc629c-8659-4a9b-8730-2e2522857811</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>CUSTOM_wp-admin.json</td>
+                <td class="not-match-text">NOT MATCH</td>
+                <td class="medium">Medium</td>
+                <td>[-] NOT MATCH - [Password] - https://brendaabbott.net not vulnerable to CVE-2023-3604</td>
+                <td>2024-12-15 14:01:02</td>
+                <td>56fc629c-8659-4a9b-8730-2e2522857811</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>ivanti.json</td>
+                <td class="match-text">MATCH</td>
+                <td class="sf">Sf</td>
+                <td> MATCH - [404] - https://brendaabbott.net may be vulnerable to sdf</td>
+                <td>2024-12-15 14:01:03</td>
+                <td>56fc629c-8659-4a9b-8730-2e2522857811</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>Picker.json</td>
+                <td class="match-text">MATCH</td>
+                <td class="high">High</td>
+                <td> MATCH - [200] - https://brendaabbott.net may be vulnerable to CVE-2019-0604</td>
+                <td>2024-12-15 14:01:04</td>
+                <td>56fc629c-8659-4a9b-8730-2e2522857811</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>Telerik.json</td>
+                <td class="not-match-text">NOT MATCH</td>
+                <td class="info">Info</td>
+                <td>[-] NOT MATCH - [RadAsyncUpload handler is registered succesfully] - https://brendaabbott.net not vulnerable to CVE-2019-18935</td>
+                <td>2024-12-15 14:01:05</td>
+                <td>56fc629c-8659-4a9b-8730-2e2522857811</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>CUSTOM_ivanti.json</td>
+                <td class="not-match-text">NOT MATCH</td>
+                <td class="high">High</td>
+                <td>[-] NOT MATCH - [200] - https://brendaabbott.net not vulnerable to CVE-2023-46805</td>
+                <td>2024-12-15 14:26:26</td>
+                <td>99253892-75a0-401f-91d1-8e79721b7774</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>CUSTOM_Ivanti_RCE.json</td>
+                <td class="not-match-text">NOT MATCH</td>
+                <td class="high">High</td>
+                <td>[-] NOT MATCH - [200] - https://brendaabbott.net not vulnerable to CVE-2021-6070</td>
+                <td>2024-12-15 14:26:27</td>
+                <td>99253892-75a0-401f-91d1-8e79721b7774</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>CUSTOM_wordpress.json</td>
+                <td class="match-text">MATCH</td>
+                <td class="medium">Medium</td>
+                <td> MATCH - [404] - https://brendaabbott.net may be vulnerable to CVE-2019-0605</td>
+                <td>2024-12-15 14:26:28</td>
+                <td>99253892-75a0-401f-91d1-8e79721b7774</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>CUSTOM_wp-admin.json</td>
+                <td class="not-match-text">NOT MATCH</td>
+                <td class="medium">Medium</td>
+                <td>[-] NOT MATCH - [Password] - https://brendaabbott.net not vulnerable to CVE-2023-3604</td>
+                <td>2024-12-15 14:26:29</td>
+                <td>99253892-75a0-401f-91d1-8e79721b7774</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>ivanti.json</td>
+                <td class="match-text">MATCH</td>
+                <td class="critical">Critical</td>
+                <td> MATCH - [404] - https://brendaabbott.net may be vulnerable to sdf</td>
+                <td>2024-12-15 14:26:30</td>
+                <td>99253892-75a0-401f-91d1-8e79721b7774</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>Picker.json</td>
+                <td class="match-text">MATCH</td>
+                <td class="high">High</td>
+                <td> MATCH - [200] - https://brendaabbott.net may be vulnerable to CVE-2019-0604</td>
+                <td>2024-12-15 14:26:31</td>
+                <td>99253892-75a0-401f-91d1-8e79721b7774</td>
+            </tr>
+        
+            <tr>
+                <td>https://brendaabbott.net</td>
+                <td>Telerik.json</td>
+                <td class="not-match-text">NOT MATCH</td>
+                <td class="info">Info</td>
+                <td>[-] NOT MATCH - [RadAsyncUpload handler is registered succesfully] - https://brendaabbott.net not vulnerable to CVE-2019-18935</td>
+                <td>2024-12-15 14:26:32</td>
+                <td>99253892-75a0-401f-91d1-8e79721b7774</td>
+            </tr>
+        
+        </table>
+    </body>
+    </html>
+    
